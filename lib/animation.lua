@@ -174,5 +174,27 @@ function Animation.Loop:step(dt)
   return false
 end
 
+Animation.Wait = Animation:extend()
+
+function Animation.Wait:new(duration)
+  Animation.new(self)
+
+  self.duration = duration
+  self.cursor = 0
+end
+
+function Animation.Wait:step(dt)
+  if self.cursor < self.duration then
+    self.cursor = self.cursor + dt
+  end
+
+  return self.cursor >= self.duration
+end
+
+function Animation.Wait:reset()
+  Animation.reset(self)
+
+  self.cursor = 0
+end
 
 return Animation

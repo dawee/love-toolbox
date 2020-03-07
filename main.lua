@@ -42,6 +42,7 @@ function love.update(dt)
             animations.reveal,
             Animation.Tween(2, state, {x = 300}, "outSine"),
           }),
+          Animation.Wait(5),
           animations.back,
         })
       )
@@ -57,7 +58,7 @@ function love.update(dt)
           print("starts revealing")
         end
       )
-      
+
       state.animation:start()
       state.sprite = peachy.new(bank.belt.spritesheet, bank.belt.image, "Roll")
     end
