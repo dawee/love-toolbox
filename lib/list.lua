@@ -30,12 +30,24 @@ function List:add(item)
   return self
 end
 
+function List:get(index)
+  return self.tbl[index]
+end
+
+function List:size()
+  return table.getn(self.tbl)
+end
+
 function List:raw()
   return self.tbl
 end
 
 function List:copy()
   return List.Iterator(fun.iter(self.tbl)):list()
+end
+
+function List:filter(predicate)
+  return List.Iterator(fun.iter(self.tbl)):filter(predicate)
 end
 
 List.Iterator = Object:extend()
@@ -46,6 +58,11 @@ end
 
 function List.Iterator:map(predicate)
   self.generator = fun.map(predicate, self.generator)
+  return self
+end
+
+function List.Iterator:filter(predicate)
+  self.generator = fun.filter(predicate, self.generator)
   return self
 end
 

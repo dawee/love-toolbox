@@ -1,25 +1,23 @@
 local Object = require("classic")
+local List = require("list")
 
 local Event = Object:extend()
+local stack = List()
 
 function Event:new()
-  self.listeners = {}
+  self.listeners = List()
 end
 
 function Event:subscribe(listener)
   local unsubscribe = function()
-    local listeners = {}
-
-    for index, other in pairs(self.listeners) do
-      if not listener == other then
-        table.insert(listeners, other)
+    self.listeners = self.listeners:filter(
+      function (other)
+        return not (other == listener)
       end
-    end
-
-    self.listeners = listeners
+    ):list()
   end
 
-  table.insert(self.listeners, listener)
+  self.listeners:add(listener)
   return unsubscribe
 end
 
@@ -38,9 +36,22 @@ function Event:listenOnce(listener)
 end
 
 function Event:trigger(data)
-  for index, listener in pairs(self.listeners) do
-    listener(data)
-  end
+  stack:add({listeners = self.listeners, data = data})
 end
+
+
+local Scheduler = Object:extend()
+
+function Scheduler:update()
+  for task in stack:values() do
+    for listener in task.listeners:values() do
+      listener(task.data)
+    end
+  end
+
+  stack = List()
+end
+
+Event.scheduler = Scheduler()
 
 return Event

@@ -3,7 +3,7 @@ local peachy = require("peachy")
 local Animation = require("animation")
 local List = require("list")
 local Bank = require("bank")
-local Promise = require("promise")
+local Event = require("event")
 
 local bank = Bank({
   lama = {
@@ -30,19 +30,49 @@ function love.update(dt)
     if loaded then
       state.x = 0
       state.opacity = 0
+
+      local animations = {
+        reveal = Animation.Tween(1, state, {opacity = 1}),
+        back = Animation.Tween(2, state, {x = 0, opacity = 0}, "inSine")
+      }
+
       state.animation = Animation.Series({
         Animation.Parallel({
-          Animation.Tween(2, state, {opacity = 1}),
+          animations.reveal,
           Animation.Tween(2, state, {x = 300}, "outSine"),
         }),
-        Animation.Tween(2, state, {x = 0}, "inSine"),
+        animations.back,
       })
+
+      animations.back.onStart:subscribe(
+        function ()
+          print("going back!")
+        end
+      )
+
+      animations.reveal.onStart:subscribe(
+        function ()
+          print("starts revealing")
+        end
+      )
+
+
+      animations.back.onComplete:subscribe(
+        function ()
+          state.animation:reset()
+          state.animation:start()
+        end
+      )
+
+      state.animation:start()
       state.sprite = peachy.new(bank.belt.spritesheet, bank.belt.image, "Roll")
     end
   else
     state.animation:update(dt)
     state.sprite:update(dt)
   end
+
+  Event.scheduler:update()
 end
 
 
