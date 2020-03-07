@@ -52,12 +52,15 @@ function Animation.Tween:new(duration, obj, target, algo)
   self.target = target
   self.algo = algo
 
-  self.onStart:subscribe(
-    function ()
-      self.tween = tween.new(self.duration, self.obj, hash.deepcopy(self.target), self.algo)
-    end
-  )
+  self.tween = tween.new(self.duration, self.obj, hash.deepcopy(self.target), self.algo)
 end
+
+function Animation.Tween:reset()
+  Animation.reset(self)
+
+  self.tween = tween.new(self.duration, self.obj, hash.deepcopy(self.target), self.algo)
+end
+
 
 function Animation.Tween:step(dt)
   return self.tween:update(dt)
