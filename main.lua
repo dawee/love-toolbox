@@ -36,13 +36,15 @@ function love.update(dt)
         back = Animation.Tween(2, state, {x = 0, opacity = 0}, "inSine")
       }
 
-      state.animation = Animation.Series({
-        Animation.Parallel({
-          animations.reveal,
-          Animation.Tween(2, state, {x = 300}, "outSine"),
-        }),
-        animations.back,
-      })
+      state.animation = Animation.Loop(
+        Animation.Series({
+          Animation.Parallel({
+            animations.reveal,
+            Animation.Tween(2, state, {x = 300}, "outSine"),
+          }),
+          animations.back,
+        })
+      )
 
       animations.back.onStart:subscribe(
         function ()
@@ -55,15 +57,7 @@ function love.update(dt)
           print("starts revealing")
         end
       )
-
-
-      animations.back.onComplete:subscribe(
-        function ()
-          state.animation:reset()
-          state.animation:start()
-        end
-      )
-
+      
       state.animation:start()
       state.sprite = peachy.new(bank.belt.spritesheet, bank.belt.image, "Roll")
     end

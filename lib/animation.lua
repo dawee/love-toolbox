@@ -137,4 +137,42 @@ function Animation.Parallel:step(dt)
   return complete
 end
 
+Animation.Loop = Animation:extend()
+
+function Animation.Loop:new(child)
+  Animation.new(self)
+
+  self.child = child
+  self.unsubscribeToChild = self.child.onComplete:subscribe(
+    function ()
+      self.child:reset()
+      self.child:start()
+    end
+  )
+end
+
+function Animation.Loop:start()
+  Animation.start(self)
+
+  self.child:start()
+end
+
+function Animation.Loop:stop()
+  Animation.stop(self)
+
+  self.child:stop()
+end
+
+function Animation.Loop:reset()
+  Animation.start(self)
+
+  self.child:reset()
+end
+
+function Animation.Loop:step(dt)
+  self.child:update(dt)
+  return false
+end
+
+
 return Animation
